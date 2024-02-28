@@ -1,0 +1,19 @@
+{
+  "name": "vchetkov/station",
+  "autoload": {
+    "psr-4": {
+      "Station\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Valeriy Chetkov",
+      "email": "chetkov.valeriy@gmail.com"
+    }
+  ],
+  "require": {
+    "ext-readline": "*",
+    "v.chetkov/money": "*",
+    "v.chetkov/data-structures": "@dev"
+  }
+}
