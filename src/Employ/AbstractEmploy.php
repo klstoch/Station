@@ -98,8 +98,17 @@ abstract class AbstractEmploy implements EmployInterface
         }
 
         foreach ($work->requiredTools() as $requiredTool) {
+            $isToolReadyHas = false;
+            foreach ($this->tools as $tool) {
+                if ($tool->name() === $requiredTool) {
+                    $isToolReadyHas = true;
+                }
+            }
+
             try {
-                $this->tools[] = $this->inventory->get($this, $requiredTool);
+                if (!$isToolReadyHas) {
+                    $this->tools[] = $this->inventory->get($this, $requiredTool);
+                }
             } catch (ToolNotFoundException) {
                 $this->logger->log('Нет свободного ' . $requiredTool->value);
                 $this->returnAllTools();
