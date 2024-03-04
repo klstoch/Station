@@ -29,7 +29,7 @@ $inventory->addNew(new Compressor($time, $logger));
 $inventory->addNew(new AirGun($time, $logger));
 $inventory->addNew(new TireChangingMachine($time, $logger));
 $inventory->addNew(new BalancingMachine($time, $logger));
-
+echo '123';
 /** @var array<TyreMechanic> $employees */
 
 $employees = [
