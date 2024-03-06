@@ -6,6 +6,7 @@ namespace Station\Tool;
 
 use Station\Employ\EmployInterface;
 
+
 interface ToolInterface
 {
     public static function name(): ToolEnum;
@@ -15,4 +16,6 @@ interface ToolInterface
     public function take(EmployInterface $employ): void;
 
     public function put(EmployInterface $employ): void;
+
+    public function getId(): string;
 }

@@ -5,16 +5,21 @@ declare(strict_types=1);
 namespace Station\Tool;
 
 use Station\Employ\EmployInterface;
+use Station\GeneratorID;
 use Station\Logger\LoggerInterface;
-use Station\Logger\LoggerWithTiming;
 use Station\Time\VirtualTime;
 
 abstract class AbstractTool implements ToolInterface
 {
-    public function __construct(protected VirtualTime $time, protected LoggerInterface $logger)
-    {
+    private readonly string $id;
 
+    public function __construct(
+        protected VirtualTime     $time,
+        protected LoggerInterface $logger,
+    ) {
+      $this->id = GeneratorID::genID();
     }
+
     private bool $isBusy = false;
 
     public function isBusy(): bool
@@ -32,5 +37,10 @@ abstract class AbstractTool implements ToolInterface
     {
         $this->logger->log($employ->name() . ' освободил ' . $this::name()->value);
         $this->isBusy = false;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 }
