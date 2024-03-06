@@ -15,6 +15,8 @@
     "ext-readline": "*",
     "v.chetkov/money": "*",
     "v.chetkov/data-structures": "@dev",
-    "symfony/console": "^7.0"
+    "symfony/console": "^7.0",
+    "ext-redis": "*",
+    "ramsey/uuid": "^4.7"
   }
 }
