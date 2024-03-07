@@ -7,10 +7,14 @@ use Station\Work\WorkEnum;
 
 readonly class Client
 {
+    private string $id;
+
     public function __construct(
-        private  string $name,
-        private  Car    $car,
-    ) {
+        private string $name,
+        private Car    $car,
+    )
+    {
+        $this->id = GeneratorID::genID();
     }
 
     public function agreeToWait(): bool
@@ -39,6 +43,14 @@ readonly class Client
         $works = WorkEnum::cases();
         return $works[random_int(0, count($works) - 1)];
 
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
     }
 
 }
