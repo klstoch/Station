@@ -10,7 +10,7 @@ use Station\Work\WorkInterface;
 
 interface EmployInterface
 {
-    public function name(): string;
+    public function getName(): string;
 
     public function canExecute(WorkInterface $work): bool;
 

@@ -8,5 +8,5 @@ interface IOInterface
         array   $answers = [],
         ?string $default = null,
         string  $errorMessage = 'Неверный ввод ',
-    );
+    ):string;
 }

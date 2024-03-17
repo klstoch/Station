@@ -5,12 +5,13 @@ namespace Station\Employ;
 class JobContract
 {
     public function __construct(
-        private GraphWork $graphWork,
+        private readonly GraphWork $graphWork,
         private float $salaryRate,
         private float $interestRate,
-    ) {
+    )
+    {
 
-   }
+    }
 
     /**
      * @return GraphWork
@@ -34,5 +35,21 @@ class JobContract
     public function getSalaryRate(): float
     {
         return $this->salaryRate;
+    }
+
+    /**
+     * @param float $interestRate
+     */
+    public function setInterestRate(float $interestRate): void
+    {
+        $this->interestRate = $interestRate;
+    }
+
+    /**
+     * @param float $salaryRate
+     */
+    public function setSalaryRate(float $salaryRate): void
+    {
+        $this->salaryRate = $salaryRate;
     }
 }

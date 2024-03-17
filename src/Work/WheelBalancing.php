@@ -10,9 +10,9 @@ use Station\Tool\BalancingMachine;
 
 final class WheelBalancing extends AbstractWork
 {
-    public static function name(): WorkEnum
+    public static function name(): WorkEnumRequired
     {
-        return WorkEnum::wheelBalancing;
+        return WorkEnumRequired::wheelBalancing;
     }
 
     public function execute(EmployInterface $employ): void

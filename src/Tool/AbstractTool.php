@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Station\Tool;
 
+use Station\Company_Station\GeneratorID;
 use Station\Employ\EmployInterface;
-use Station\GeneratorID;
 use Station\Logger\LoggerInterface;
 use Station\Time\VirtualTime;
 

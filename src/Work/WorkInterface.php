@@ -9,7 +9,7 @@ use Station\Tool\ToolEnum;
 
 interface WorkInterface
 {
-    public static function name(): WorkEnum;
+    public static function name(): WorkEnumRequired;
 
     public function execute(EmployInterface $employ): void;
 

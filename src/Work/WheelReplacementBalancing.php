@@ -11,9 +11,9 @@ use Station\Tool\TireChangingMachine;
 
 final class WheelReplacementBalancing extends AbstractWork
 {
-    public static function name(): WorkEnum
+    public static function name(): WorkEnumRequired
     {
-        return WorkEnum::wheelReplacementBalancing;
+        return WorkEnumRequired::wheelReplacementBalancing;
     }
 
     public function execute(EmployInterface $employ): void

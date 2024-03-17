@@ -1,10 +1,23 @@
 <?php
 
+
+
 require_once __DIR__.'/vendor/autoload.php';
 
-$obj = new \Station\ClientTraffic();
-$client1 = $obj->getClient();
-$client2 = $obj->getClient();
-$client3 = $obj->getClient();
+$virtualTime = new \Station\Time\VirtualTime(microtime(true), new DateTimeImmutable());
+$logger = new \Station\Logger\LoggerWithTiming($virtualTime, new \Station\Logger\EchoLogger(),);
 
-$i=1;
+$redis = new \Redis();
+$redis->connect('127.0.0.1');
+$mutex = new Station\Mutex\Mutex($redis, 'RedisBasedInventory');
+$obj = new \Station\Inventory\RedisBasedInventory($logger, $redis, $mutex);
+
+
+
+$obj1 = new \Station\Queue\RedisBasedClientQueue( $redis, $mutex);
+
+readline();
+//$obj->addNew(new \Station\Tool\AirGun($virtualTime, $logger));
+
+$client = new \Station\Company_Station\ClientTraffic();
+$obj1->add($client->getClient());

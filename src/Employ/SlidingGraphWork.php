@@ -8,12 +8,16 @@ class SlidingGraphWork implements GraphWork
     private array $daysWork = [];
 
     public function __construct(
-        private readonly int                $workingDays,
-        private readonly int                $holidays,
-        private readonly array              $workingTime = ['08:00', '12:00', '13:00', '20:00'],
+        private readonly int $workingDays,
+        private readonly int $holidays,
+        private readonly GraphIntervals $workingTime = new GraphIntervals(
+            workingTimeInterval: new TimeInterval(new Time('08:00'), new Time('20:00')),
+            launchTimeInterval: new TimeInterval(new Time('12:30'), new Time('13:00')),
+        ),
         private readonly \DateTimeInterface $firstWorkDay = new \DateTimeImmutable(),
     )
     {
+
     }
 
     public function isWorkTime(\DateTimeInterface $dateTime): bool
@@ -43,12 +47,9 @@ class SlidingGraphWork implements GraphWork
         if (!isset($this->daysWork[$date])) {
             return false;
         }
-        $time = $dateTime->format('H:i');
-        [$startWorkingTime, $startLaunchTime, $endLaunchTime, $endWorkingTime] = $this->workingTime;
 
-        $isWorkingTime = $time > $startWorkingTime && $time < $endWorkingTime;
-        $isLaunchTime = $time > $startLaunchTime && $time < $endLaunchTime;
-        return $isWorkingTime && !$isLaunchTime;
+        $time = Time::from($dateTime->format('H:i'));
+        return $this->workingTime->isWorkingTime($time);
 
     }
 

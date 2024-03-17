@@ -2,50 +2,57 @@
 
 namespace Station\Employ;
 
-use Station\Inventory;
+
+use Station\Company_Station\GeneratorID;
+use Station\Inventory\Inventory;
 use Station\Logger\LoggerInterface;
 use Station\Time\VirtualTime;
 use Station\Tool\ToolEnum;
 use Station\Tool\ToolInterface;
 use Station\ToolNotFoundException;
-use Station\Work\WorkEnum;
+use Station\Work\WorkEnumAdditional;
+use Station\Work\WorkEnumRequired;
 use Station\Work\WorkInterface;
 
 abstract class AbstractEmploy implements EmployInterface
 {
     /** @var array<ToolInterface> */
     private array $tools = [];
-
+    private string $id;
     private array $competences = [
-        WorkEnum::tireReplacement,
-        WorkEnum::wheelBalancing,
-        WorkEnum::wheelReplacementBalancing,
-        //WorkEnum::wheelInflation,
+        WorkEnumRequired::tireReplacement,
+        WorkEnumRequired::wheelBalancing,
+        WorkEnumRequired::wheelReplacementBalancing,
+        WorkEnumRequired::wheelInflation,
     ];
     private bool $isBusy = false;
 
     public function __construct(
-        private readonly LevelSkillEnum $levelSkill,
-        private readonly string         $name,
-        protected LoggerInterface       $logger,
-        private readonly Inventory      $inventory,
-        private readonly GraphWork      $graphWork,
-        private readonly VirtualTime    $time,
-        /** @param array<WorkEnum> $additionalCompetences */
-        array                           $additionalCompetences = [],
+        private readonly string $name,
+        private readonly Grade $grade,
+        protected LoggerInterface $logger,
+        private readonly Inventory $inventory,
+        private readonly GraphWork $graphWork,
+        private readonly VirtualTime $time,
+        /** @param array<WorkEnumRequired> $additionalCompetences */
+        private array $additionalCompetences = [],
     )
     {
+        if (!empty($additionalCompetences)) {
+           $this->competences = array_merge($this->competences, $additionalCompetences);
+        }
+        $this->id = GeneratorID::genID();
     }
 
     /**
-     * @return LevelSkillEnum
+     * @return Grade
      */
-    public function getLevelSkill(): LevelSkillEnum
+    public function getGrade(): Grade
     {
-        return $this->levelSkill;
+        return $this->grade;
     }
 
-    public function name(): string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -104,11 +111,11 @@ abstract class AbstractEmploy implements EmployInterface
                     $isToolReadyHas = true;
                 }
             }
-
             try {
                 if (!$isToolReadyHas) {
                     $this->tools[] = $this->inventory->get($this, $requiredTool);
                 }
+
             } catch (ToolNotFoundException) {
                 $this->logger->log('Нет свободного ' . $requiredTool->value);
                 $this->returnAllTools();
@@ -133,5 +140,37 @@ abstract class AbstractEmploy implements EmployInterface
     public function isWorkTime(\DateTimeInterface $dateTime): bool
     {
         return $this->graphWork->isWorkTime($dateTime);
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAdditionalCompetences(): array
+    {
+        return $this->additionalCompetences;
+    }
+
+    /**
+     * @param WorkEnumAdditional $additionalCompetencesEnum
+     */
+    public function addAdditionalCompetences(WorkEnumAdditional $additionalCompetencesEnum ): void
+    {
+        $this->additionalCompetences[] = $additionalCompetencesEnum;
+    }
+
+    /**
+     * @return GraphWork
+     */
+    public function getGraphWork(): GraphWork
+    {
+        return $this->graphWork;
     }
 }

@@ -13,9 +13,9 @@ use \Station\Logger\LoggerWithTiming;
 
 final class TyreReplacement extends AbstractWork
 {
-    public static function name(): WorkEnum
+    public static function name(): WorkEnumRequired
     {
-        return WorkEnum::tireReplacement;
+        return WorkEnumRequired::tireReplacement;
     }
 
     public function execute(EmployInterface $employ): void

@@ -21,7 +21,8 @@ use Station\Tool\Compressor;
 use Station\Tool\TireChangingMachine;
 use Station\Tool\ToolEnum;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/Functions.php';
 $generatorID = new GeneratorID();
 $time = new VirtualTime(microtime(true), new DateTimeImmutable('2024-03-09 08:00'), 60);
 $logger = new LoggerWithTiming($time, new EchoLogger());
@@ -86,24 +87,5 @@ while (true) {
     $station->getInventory()->addNew($tool);
 }
 
-function selectStation($io, $redis): Station
-{
-    $stations = $redis->hGetAll('stations');
-    $listStation = function (string $serializedStation) {
-        /** @var Station $station */
-        $station = unserialize($serializedStation, ['allowed_classes' => true]);
-        return sprintf('%s (%s)', $station->getName(), $station->getId());
-    };
-    $namesForSelect = array_map($listStation, $stations);
-    $input = $io->requestInput('Выбери имя станции', $namesForSelect);//var_dump($namesForSelect);
-    if (preg_match("~\(.*\)~", $input, $matches) !== false) {
-        $id = $matches[0];
-    } else {
-        throw new Exception('Неверный ввод'); // неправильное исключение
-    }
 
-    $stationSerialized = $redis->hGet('stations', $id);
-    /** @var Station $station */
-    return unserialize($stationSerialized, ['allowed_classes' => true]);
-}
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Station\Inventory;
 
+use Station\Company_Station\GeneratorID;
 use Station\Employ\EmployInterface;
 use Station\Logger\LoggerInterface;
 use Station\Mutex\Mutex;
@@ -14,13 +15,17 @@ use Station\ToolNotFoundException;
 final readonly class RedisBasedInventory implements Inventory
 {
     private const PROCESS_INVENTORY = 'RedisBasedInventory';
+    private string $uniqueKey;
 
     public function __construct(
+        //private string          $name,
         private LoggerInterface $logger,
         private \Redis          $redis,
         private Mutex           $mutex,
+        //private string          $uniqueKey,
     )
     {
+        $this->uniqueKey = GeneratorID::genID();
     }
 
 
@@ -68,13 +73,21 @@ final readonly class RedisBasedInventory implements Inventory
 
     private function getTools(): array
     {
-        $serializedTools = $this->redis->get('inventory');
+        $serializedTools = $this->redis->get('inventory_'.$this->getUniqueKey() );
         return $serializedTools ? unserialize($serializedTools, ['allowed_classes' => true]) : [];
     }
 
     private function saveTools(array $tools): void
     {
         $serializedTools = serialize($tools);
-        $this->redis->set('inventory', $serializedTools);
+        $this->redis->set('inventory_'.$this->getUniqueKey(), $serializedTools);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUniqueKey(): string
+    {
+        return $this->uniqueKey;
     }
 }
