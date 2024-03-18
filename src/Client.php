@@ -2,20 +2,15 @@
 
 namespace Station;
 
-use Station\Company_Station\GeneratorID;
 use Station\Vehicle\Car;
-use Station\Work\WorkEnumRequired;
+use Station\Work\WorkEnum;
 
 readonly class Client
 {
-    private string $id;
-
     public function __construct(
-        private string $name,
-        private Car    $car,
-    )
-    {
-        $this->id = GeneratorID::genID();
+        private  string $name,
+        private  Car    $car,
+    ) {
     }
 
     public function agreeToWait(): bool
@@ -39,19 +34,19 @@ readonly class Client
         return $this->car;
     }
 
-    public function createWorkName(): WorkEnumRequired
+    public function createWorkName(): WorkEnum
     {
-        $works = WorkEnumRequired::cases();
+        $works = WorkEnum::cases();
         return $works[random_int(0, count($works) - 1)];
 
     }
 
-    /**
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
 }
+/*$workName = $works[random_int(0, count($works) - 1)];
+
+$work = match ($workName) {
+    WorkEnum::tireReplacement => new TireReplacement($time, $logger,),
+    WorkEnum::wheelBalancing => new WheelBalancing($time, $logger),
+    WorkEnum::wheelReplacementBalancing => new WheelReplacementBalancing($time, $logger),
+    default => new TireReplacement($time, $logger),
+};*/
