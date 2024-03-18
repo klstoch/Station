@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Station\Company_Station\Station;
+use Station\PilotStation\Station;
 use Station\Employ\EmployInterface;
 use Station\Infrastructure\IO\IOInterface;
 

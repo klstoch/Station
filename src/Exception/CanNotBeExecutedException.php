@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Station\Employ;
+namespace Station\Exception;
 
 final class CanNotBeExecutedException extends \Exception
 {

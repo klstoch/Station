@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Station;
+namespace Station\Exception;
 
 final class ToolNotFoundException extends \Exception
 {

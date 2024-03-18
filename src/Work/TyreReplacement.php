@@ -9,7 +9,7 @@ use Station\Employ\EmployInterface;
 use Station\Tool\AirGun;
 use Station\Tool\TireChangingMachine;
 use Station\Tool\ToolEnum;
-use \Station\Logger\LoggerWithTiming;
+use Station\Logger\LoggerWithTiming;
 
 final class TyreReplacement extends AbstractWork
 {

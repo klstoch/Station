@@ -19,5 +19,5 @@ $obj1 = new \Station\Queue\RedisBasedClientQueue( $redis, $mutex);
 readline();
 //$obj->addNew(new \Station\Tool\AirGun($virtualTime, $logger));
 
-$client = new \Station\Company_Station\ClientTraffic();
+$client = new \Station\Client\ClientTraffic();
 $obj1->add($client->getClient());

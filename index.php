@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Station\Company_Station\ClientTraffic;
+use Station\Client\ClientTraffic;
 use Station\Employ\GradeEnum;
-use Station\Employ\SlidingGraphWork;
+use Station\Employ\Graph\SlidingGraphWork;
 use Station\Employ\TyreMechanic;
 use Station\Inventory\RedisBasedInventory;
 use Station\Logger\EchoLogger;
@@ -26,7 +26,7 @@ $logger = new LoggerWithTiming($time, new EchoLogger());
 
 $inventory = new RedisBasedInventory($logger);
 
-$generatorId = new \Station\Company_Station\GeneratorID();
+$generatorId = new \Station\PilotStation\GeneratorID();
 $inventory->addNew(new Compressor($time, $logger,  $generatorId::genID()));
 $inventory->addNew(new AirGun($time, $logger));
 $inventory->addNew(new TireChangingMachine($time, $logger));

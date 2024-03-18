@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Station\Company_Station\GeneratorID;
-use Station\Company_Station\Station;
-use Station\Employ\ConstantGraphWork;
-use Station\Employ\GraphIntervals;
-use Station\Employ\Time;
-use Station\Employ\TimeInterval;
-use Station\EnumDayOfWeek;
+use Station\PilotStation\Station;
+use Station\Employ\Graph\ConstantGraphWork;
+use Station\Employ\TimeInterval\GraphIntervals;
+use Station\Employ\TimeInterval\Time;
+use Station\Employ\TimeInterval\TimeInterval;
+use Station\Infrastructure\EnumDayOfWeek;
+use Station\Infrastructure\GeneratorID;
 use Station\Infrastructure\IO\IOFactory;
 use Station\Inventory\RedisBasedInventory;
 use Station\Logger\EchoLogger;

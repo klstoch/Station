@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Station\Tool;
 
-use Station\Company_Station\GeneratorID;
+use Station\PilotStation\GeneratorID;
 use Station\Employ\EmployInterface;
 use Station\Logger\LoggerInterface;
 use Station\Time\VirtualTime;
@@ -29,13 +29,13 @@ abstract class AbstractTool implements ToolInterface
 
     public function take(EmployInterface $employ): void
     {
-        $this->logger->log($employ->name() . ' принял в работу ' . $this::name()->value);
+        $this->logger->log($employ->getName() . ' принял в работу ' . $this::name()->value);
         $this->isBusy = true;
     }
 
     public function put(EmployInterface $employ): void
     {
-        $this->logger->log($employ->name() . ' освободил ' . $this::name()->value);
+        $this->logger->log($employ->getName() . ' освободил ' . $this::name()->value);
         $this->isBusy = false;
     }
 

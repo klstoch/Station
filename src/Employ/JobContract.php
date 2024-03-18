@@ -2,6 +2,8 @@
 
 namespace Station\Employ;
 
+use Station\Employ\Graph\GraphWork;
+
 class JobContract
 {
     public function __construct(

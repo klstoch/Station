@@ -3,9 +3,9 @@
 namespace Station\Inventory;
 
 use Station\Employ\EmployInterface;
+use Station\Exception\ToolNotFoundException;
 use Station\Tool\ToolEnum;
 use Station\Tool\ToolInterface;
-use Station\ToolNotFoundException;
 
 interface Inventory
 {

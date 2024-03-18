@@ -2,7 +2,7 @@
 
 namespace Station\Queue;
 
-use Station\Client;
+use Station\Client\Client;
 use Station\Mutex\Mutex;
 
 readonly class RedisBasedClientQueue implements ClientQueue

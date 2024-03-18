@@ -1,5 +1,5 @@
 <?php
-namespace Station;
+namespace Station\Infrastructure;
 enum EnumDayOfWeek: int
 {
     case monday = 1;

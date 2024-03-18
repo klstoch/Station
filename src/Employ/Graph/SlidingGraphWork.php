@@ -1,7 +1,11 @@
 <?php
 
-namespace Station\Employ;
+namespace Station\Employ\Graph;
 
+
+use Station\Employ\TimeInterval\GraphIntervals;
+use Station\Employ\TimeInterval\Time;
+use Station\Employ\TimeInterval\TimeInterval;
 
 class SlidingGraphWork implements GraphWork
 {

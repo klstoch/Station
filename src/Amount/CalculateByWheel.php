@@ -1,6 +1,6 @@
 <?php
 
-namespace Station;
+namespace Station\Amount;
 
 use Chetkov\Money\Money;
 use Station\Vehicle\BodyEnum;

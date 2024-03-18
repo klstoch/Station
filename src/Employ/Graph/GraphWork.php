@@ -1,6 +1,6 @@
 <?php
 
-namespace Station\Employ;
+namespace Station\Employ\Graph;
 
 interface GraphWork
 {

@@ -3,7 +3,7 @@
 namespace Station\Queue;
 
 
-use Station\Client;
+use Station\Client\Client;
 
 interface ClientQueue
 {
