@@ -2,12 +2,33 @@
 
 declare(strict_types=1);
 
+use Station\Client\Client;
 use Station\PilotStation\Station;
 use Station\Employ\EmployInterface;
 use Station\Infrastructure\IO\IOInterface;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+function selectClient(IOInterface $io, Redis $redis): ?Client
+{
+    $station = selectStation($io, $redis);
+    $listClients = function (Client $client) {
+        return sprintf('%s (%s)', $client->getName(), $client->getId());
+    };
+    $namesForSelect = array_map($listClients, $station->getClients());
+    $input = $io->requestInput('Выбери ФИО клиента', $namesForSelect);
+    if (preg_match("~\(.*\)~", $input, $matches) !== false) {
+        $id = trim($matches[0], '()');
+    } else {
+        throw new Exception('Неверный ввод');
+    }
+    foreach ($station->getClients() as $client) {
+        if ($id === $client->getId()) {
+            return $client;
+        }
+    }
+    return null;
+}
 function selectEmploy(IOInterface $io, Redis $redis): ?EmployInterface
 {
     $station = selectStation($io, $redis);

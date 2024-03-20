@@ -8,7 +8,6 @@ use Station\Employ\TimeInterval\GraphIntervals;
 use Station\Employ\TimeInterval\Time;
 use Station\Employ\TimeInterval\TimeInterval;
 use Station\Infrastructure\EnumDayOfWeek;
-use Station\Infrastructure\GeneratorID;
 use Station\Infrastructure\IO\IOFactory;
 use Station\Inventory\RedisBasedInventory;
 use Station\Logger\EchoLogger;
@@ -22,8 +21,8 @@ use Station\Tool\TireChangingMachine;
 use Station\Tool\ToolEnum;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__.'/Functions.php';
-$generatorID = new GeneratorID();
+require_once __DIR__ . '/functions.php';
+
 $time = new VirtualTime(microtime(true), new DateTimeImmutable('2024-03-09 08:00'), 60);
 $logger = new LoggerWithTiming($time, new EchoLogger());
 

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/Functions.php';
+require_once __DIR__ . '/functions.php';
 
 use Station\Employ\Grade;
 use Station\Employ\Graph\ConstantGraphWork;
@@ -18,7 +18,7 @@ use Station\Infrastructure\IO\IOFactory;
 use Station\Logger\EchoLogger;
 use Station\Logger\LoggerWithTiming;
 use Station\Time\VirtualTime;
-use Station\Work\WorkEnumAdditional;
+use Station\Work\CompetenceEnum;
 
 $redis = new \Redis();
 $redis->connect('127.0.0.1');
@@ -88,23 +88,29 @@ if ($isNeedCreate) {
 } else {
     $employee = selectEmploy($io, $redis);
 }
+
 $salaryRate = (float)readline('Введи оклад сотрудника: ');
 $interestRate = (float)readline('Введи процентную ставку заработной платы: ');
 $jobContract = new JobContract($employee->getGraphWork(), $salaryRate, $interestRate);
 
+$answerByEmployee = ['Желаете изменить зарплату?', 'Желаете добавить умения сотруднику?'];
 
 while (true) {
-    $additionalCompetencesName = $io->requestInput('Введи дополнительное умение: ', array_map(static fn(WorkEnumAdditional $enumAdditional) => $enumAdditional->value, WorkEnumAdditional::cases()));
-    $additionalCompetencesEnum = WorkEnumAdditional::from($additionalCompetencesName);
-    foreach ($employee->getAdditionalCompetences() as $additionalCompetence) {
-        if ($additionalCompetence !== $additionalCompetencesName) {
-            $employee->addAdditionalCompetences($additionalCompetencesEnum);
-        }else{
-            echo 'Такое умение уже отмечено у сотрудника'. PHP_EOL; // ?? выведет эту строку и снова предложит ввести доп. умение ??
-        } // ?? изменение зарплаты в бесконечном цикле предложить??
+    $inputCorrection = $io->requestInput('Внести дополнительные корректировки? ', $answerByEmployee);
+    if ($inputCorrection === 'Желаете изменить зарплату?') {
+        $jobContract->updateSalaryRate($salaryRate); // изменить название методов
+        $jobContract->updateInterestRate($interestRate);
+    } elseif ($inputCorrection === 'Желаете добавить умения сотруднику?') {
+        $competencesToSelect = [];
+        foreach (CompetenceEnum::cases() as $competence) {
+            if (!in_array($competence, $employee->getCompetences())) {
+                $competencesToSelect[] = $competence;
+            }
+        }
+        $workEnum = CompetenceEnum::from($io->requestInput('Введите дополнительное умение: ', array_map(static fn(CompetenceEnum $workEnumAdditional) => $workEnumAdditional->value, $competencesToSelect)));
+        $employee->addAdditionalCompetences($workEnum);
     }
-    $jobContract->setSalaryRate($salaryRate);
-    $jobContract->setInterestRate($interestRate);
+
 }
 
 
