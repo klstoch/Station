@@ -6,36 +6,16 @@ use Station\Client\Client;
 use Station\PilotStation\Station;
 use Station\Employ\EmployInterface;
 use Station\Infrastructure\IO\IOInterface;
+use Station\PilotStation\StationRepository;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-function selectClient(IOInterface $io, Redis $redis): ?Client
+function selectEmploy(Station $station, IOInterface $io): ?EmployInterface
 {
-    $station = selectStation($io, $redis);
-    $listClients = function (Client $client) {
-        return sprintf('%s (%s)', $client->getName(), $client->getId());
-    };
-    $namesForSelect = array_map($listClients, $station->getClients());
-    $input = $io->requestInput('Выбери ФИО клиента', $namesForSelect);
-    if (preg_match("~\(.*\)~", $input, $matches) !== false) {
-        $id = trim($matches[0], '()');
-    } else {
-        throw new Exception('Неверный ввод');
-    }
-    foreach ($station->getClients() as $client) {
-        if ($id === $client->getId()) {
-            return $client;
-        }
-    }
-    return null;
-}
-function selectEmploy(IOInterface $io, Redis $redis): ?EmployInterface
-{
-    $station = selectStation($io, $redis);
-    $listEmployees = function (EmployInterface $employee) {
-        return sprintf('%s (%s)', $employee->getName(), $employee->getId());
-    };
-    $namesForSelect = array_map($listEmployees, $station->getEmployees());
+    $namesForSelect = array_map(
+        static fn (EmployInterface $employee) => sprintf('%s (%s)', $employee->getName(), $employee->getId()),
+        $station->getEmployees(),
+    );
     $input = $io->requestInput('Выбери ФИО сотрудника', $namesForSelect);
     if (preg_match("~\(.*\)~", $input, $matches) !== false) {
         $id = trim($matches[0], '()');
@@ -50,15 +30,13 @@ function selectEmploy(IOInterface $io, Redis $redis): ?EmployInterface
     return null;
 }
 
-function selectStation(IOInterface $io, Redis $redis): Station
+function selectStation(IOInterface $io, StationRepository $stationRepository): Station
 {
-    $stations = $redis->hGetAll('stations');
-    $listStation = function (string $serializedStation) {
-        /** @var Station $station */
-        $station = unserialize($serializedStation, ['allowed_classes' => true]);
-        return sprintf('%s (%s)', $station->getName(), $station->getId());
-    };
-    $namesForSelect = array_map($listStation, $stations);
+    $stations = $stationRepository->getAll();
+    $namesForSelect = array_map(
+        static fn (Station $station) => sprintf('%s (%s)', $station->getName(), $station->getId()),
+        $stations,
+    );
     $input = $io->requestInput('Выбери имя станции', array_values($namesForSelect));
     if (preg_match("~\(.*\)~", $input, $matches) !== false) {
         $id = trim($matches[0], '()');
@@ -66,7 +44,6 @@ function selectStation(IOInterface $io, Redis $redis): Station
         throw new Exception('Неверный ввод');
     }
 
-    $stationSerialized = $redis->hGet('stations', $id);
-    /** @var Station $station */
-    return unserialize($stationSerialized, ['allowed_classes' => true]);
+    return $stationRepository->get($id);
+
 }

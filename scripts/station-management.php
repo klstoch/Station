@@ -13,6 +13,8 @@ use Station\Inventory\RedisBasedInventory;
 use Station\Logger\EchoLogger;
 use Station\Logger\LoggerWithTiming;
 use Station\Mutex\Mutex;
+use Station\PilotStation\StationRepository;
+use Station\Queue\RedisBasedClientQueue;
 use Station\Time\VirtualTime;
 use Station\Tool\AirGun;
 use Station\Tool\BalancingMachine;
@@ -23,11 +25,20 @@ use Station\Tool\ToolEnum;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/functions.php';
 
-$time = new VirtualTime(microtime(true), new DateTimeImmutable('2024-03-09 08:00'), 60);
-$logger = new LoggerWithTiming($time, new EchoLogger());
+$redis = new \Redis();
+$redis->connect('127.0.0.1');
 
 $ioFactory = new IOFactory();
 $io = $ioFactory->create();
+
+$stationRepository = new StationRepository($redis, new Mutex($redis));
+
+$time = new VirtualTime(microtime(true), new DateTimeImmutable(readline('Введи время планируемое для запуска: ')),60);
+$logger = new LoggerWithTiming($time, new EchoLogger());
+
+$mutex1 = new Mutex($redis, 'RedisBasedClientQueue');
+$clientQueue = new RedisBasedClientQueue($redis, $mutex1);
+
 
 $timeStart = ['08:00', '08:15', '08:30', '08:45', '09:00', '09:15', '09:30', '09:45', '10:00'];
 $timeFinal = ['18:00', '18:15', '18:30', '18:45', '19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '20:45', '21:00'];
@@ -45,15 +56,10 @@ for ($dayOfWeek = 1; $dayOfWeek <= 7; $dayOfWeek++) {
 
 $graph = new ConstantGraphWork($config);
 
-
-$redis = new \Redis();
-$redis->connect('127.0.0.1');
-$mutex = new Mutex($redis, 'RedisBasedInventory');
-
 $answerByStation = ['Создать новую станцию', 'Внести изменения в существующую станцию'];
 $answerByInventory = ['Создать новый инвентарь', 'Использовать существующий'];
 
-$isStationsExists = $redis->hGetAll('stations') !== null;
+$isStationsExists = !empty($stationRepository->getAll());
 
 $isNeedCreate = !$isStationsExists
     || $io->requestInput('Желаете создать новую станцию или внести изменения в существующую? ', $answerByStation, 'Создать новую станцию') === 'Создать новую станцию';
@@ -61,18 +67,18 @@ $isNeedCreate = !$isStationsExists
 if ($isNeedCreate) {
     $name = readline('Введи название предприятия: ' . PHP_EOL);
     $address = readline('Введи адрес оказания услуг: ' . PHP_EOL);
-    $isStationsExists = $redis->hGetAll('stations') !== null;
     $isNeedCreate = !$isStationsExists
         || $io->requestInput('Желаете создать новый инвентарь или использовать существующий? ', $answerByInventory, 'Создать новый инвентарь') === 'Создать новый инвентарь';
     if ($isNeedCreate) {
-        $inventory = new RedisBasedInventory($logger, $redis, $mutex);
+        $mutex2 = new Mutex($redis, 'RedisBasedInventory');
+        $inventory = new RedisBasedInventory($logger, $redis, $mutex2);
     } else {
-        $inventory = selectStation($io, $redis)->getInventory();
+        $inventory = selectStation($io, $stationRepository)->getInventory();
     }
-    $station = new Station($name, $address, $graph, $inventory);
+    $station = new Station($name, $address, $graph, $inventory, $clientQueue, $time);
     $redis->hSet('stations', $station->getId(), serialize($station));
 } else {
-    $station = selectStation($io, $redis);
+    $station = selectStation($io, $stationRepository);
 }
 
 while (true) {

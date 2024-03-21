@@ -17,16 +17,17 @@ use Station\Infrastructure\EnumDayOfWeek;
 use Station\Infrastructure\IO\IOFactory;
 use Station\Logger\EchoLogger;
 use Station\Logger\LoggerWithTiming;
-use Station\Time\VirtualTime;
+use Station\Mutex\Mutex;
+use Station\PilotStation\StationRepository;
 use Station\Work\CompetenceEnum;
 
 $redis = new \Redis();
 $redis->connect('127.0.0.1');
 
+$stationRepository = new StationRepository($redis, new Mutex($redis));
+
 $ioFactory = new IOFactory();
 $io = $ioFactory->create();
-$time = new VirtualTime(microtime(true), new DateTimeImmutable('2024-03-09 08:00'), 60);
-$logger = new LoggerWithTiming($time, new EchoLogger());
 
 $timeStartWorking = ['08:00', '08:15', '08:30', '08:45', '09:00', '09:15', '09:30', '09:45', '10:00'];
 $timeFinalWorking = ['18:00', '18:15', '18:30', '18:45', '19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '20:45', '21:00'];
@@ -37,7 +38,9 @@ $slidingGraphWork = 'Плавающий график работы';
 $graphs = [$constantGraphWork, $slidingGraphWork];
 
 $answerByEmployees = ['Создать нового сотрудника', 'Редактировать данные существующего сотрудника'];
-$isEmployeesExists = $redis->hGetAll('employees') !== null;
+
+$station = selectStation($io, $stationRepository);
+$isEmployeesExists = !empty($station->getEmployees());
 
 $isNeedCreate = !$isEmployeesExists
     || $io->requestInput('Желаете создать нового сотрудника или внести изменения у существующего? ', $answerByEmployees, 'Создать нового сотрудника') === 'Создать нового сотрудника';
@@ -79,25 +82,25 @@ if ($isNeedCreate) {
         $graphWork = new SlidingGraphWork($workingDays, $holidays, $workingTime, $firstWorkDay,);
     }
 
-    $station = selectStation($io, $redis);
+    $time = $station->getTime();
     $inventory = $station->getInventory();
+    $logger = new LoggerWithTiming($time, new EchoLogger());
 
     $employee = new TyreMechanic($name, $grade, $logger, $inventory, $graphWork, $time);
     $station->addEmployee($employee);
-    $redis->hSet('stations', $station->getId(), serialize($station));
+    $stationRepository->save($station);
 } else {
-    $employee = selectEmploy($io, $redis);
+    $employee = selectEmploy($station, $io);
 }
-
-$salaryRate = (float)readline('Введи оклад сотрудника: ');
-$interestRate = (float)readline('Введи процентную ставку заработной платы: ');
-$jobContract = new JobContract($employee->getGraphWork(), $salaryRate, $interestRate);
 
 $answerByEmployee = ['Желаете изменить зарплату?', 'Желаете добавить умения сотруднику?'];
 
 while (true) {
     $inputCorrection = $io->requestInput('Внести дополнительные корректировки? ', $answerByEmployee);
     if ($inputCorrection === 'Желаете изменить зарплату?') {
+        $salaryRate = (float)readline('Введи оклад сотрудника: ');
+        $interestRate = (float)readline('Введи процентную ставку заработной платы: ');
+        $jobContract = new JobContract($employee->getGraphWork(), $salaryRate, $interestRate);
         $jobContract->updateSalaryRate($salaryRate); // изменить название методов
         $jobContract->updateInterestRate($interestRate);
     } elseif ($inputCorrection === 'Желаете добавить умения сотруднику?') {
@@ -109,8 +112,8 @@ while (true) {
         }
         $workEnum = CompetenceEnum::from($io->requestInput('Введите дополнительное умение: ', array_map(static fn(CompetenceEnum $workEnumAdditional) => $workEnumAdditional->value, $competencesToSelect)));
         $employee->addAdditionalCompetences($workEnum);
+        $stationRepository->save($station);
     }
-
 }
 
 
