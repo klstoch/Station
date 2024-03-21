@@ -4,15 +4,14 @@ namespace Station\Work;
 
 use Station\Employ\EmployInterface;
 use Station\Tool\AirGun;
-use Station\Tool\TireChangingMachine;
 use Station\Tool\ToolEnum;
 use Station\Tool\BalancingMachine;
 
 final class WheelBalancing extends AbstractWork
 {
-    public static function name(): WorkEnumRequired
+    public static function name(): string
     {
-        return WorkEnumRequired::wheelBalancing;
+        return 'Балансировка колес';
     }
 
     public function execute(EmployInterface $employ): void
@@ -70,5 +69,9 @@ final class WheelBalancing extends AbstractWork
             ToolEnum::airGun,
             ToolEnum::balancingMachine,
         ];
+    }
+    public function requiredCompetences(): array
+    {
+     return [CompetenceEnum::wheelBalancing];
     }
 }

@@ -9,13 +9,13 @@ use Station\Employ\EmployInterface;
 use Station\Tool\AirGun;
 use Station\Tool\TireChangingMachine;
 use Station\Tool\ToolEnum;
-use Station\Logger\LoggerWithTiming;
+
 
 final class TyreReplacement extends AbstractWork
 {
-    public static function name(): WorkEnumRequired
+    public static function name(): string
     {
-        return WorkEnumRequired::tireReplacement;
+        return 'Замена резины'; //CompetenceEnum::tyreReplacement;
     }
 
     public function execute(EmployInterface $employ): void
@@ -65,5 +65,9 @@ final class TyreReplacement extends AbstractWork
             ToolEnum::airGun,
             ToolEnum::tireChangingMachine,
         ];
+    }
+    public function requiredCompetences(): array
+    {
+     return [CompetenceEnum::tyreReplacement];
     }
 }

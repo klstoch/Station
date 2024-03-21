@@ -15,4 +15,16 @@ abstract class AbstractWork implements WorkInterface
     ) {
 
     }
+
+    /**
+     * @return array<string>
+     */
+    public static function getAll(): array
+    {
+        return [
+            TyreReplacement::name(),
+            WheelBalancing::name(),
+            WheelReplacementBalancing::name(),
+        ]; // здесь должны быть все виды работ, включая их сложение
+    }
 }

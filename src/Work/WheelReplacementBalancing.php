@@ -11,9 +11,9 @@ use Station\Tool\TireChangingMachine;
 
 final class WheelReplacementBalancing extends AbstractWork
 {
-    public static function name(): WorkEnumRequired
+    public static function name(): string
     {
-        return WorkEnumRequired::wheelReplacementBalancing;
+        return 'Замена резины и балансировка колес';//CompetenceEnum::wheelReplacementBalancing;
     }
 
     public function execute(EmployInterface $employ): void
@@ -74,5 +74,12 @@ final class WheelReplacementBalancing extends AbstractWork
             ToolEnum::balancingMachine,
             ToolEnum::tireChangingMachine,
         ];
+    }
+    public function requiredCompetences(): array
+    {
+     return [
+         CompetenceEnum::tyreReplacement,
+         CompetenceEnum::wheelBalancing,
+     ];
     }
 }

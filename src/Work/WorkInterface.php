@@ -9,7 +9,7 @@ use Station\Tool\ToolEnum;
 
 interface WorkInterface
 {
-    public static function name(): WorkEnumRequired;
+    public static function name(): string;
 
     public function execute(EmployInterface $employ): void;
 
@@ -17,4 +17,6 @@ interface WorkInterface
      * @return array<ToolEnum>
      */
     public function requiredTools(): array;
+
+    public function requiredCompetences():array;
 }

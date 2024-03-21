@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Station\Work;
 
-enum WorkEnumRequired: string
+enum CompetenceEnum: string
 {
-    case tireReplacement = 'замена резины';
+    case tyreReplacement = 'замена резины';
     case wheelBalancing = 'балансировка колес';
-    case wheelReplacementBalancing = 'замена резины и балансировка колес';
     case wheelInflation = 'подкачка колес';
-    // case repairDamageDisc = 'ремонт поврежденного диска';
-    //case repairTyre = 'ремонт поврежденной шины';
+    case repairDamageDisc = 'ремонт поврежденного диска';
+    case repairTyre = 'ремонт поврежденной шины';
 
+    //case wheelReplacementBalancing = 'замена резины и балансировка колес'; // удалить
 }
  /*
 
