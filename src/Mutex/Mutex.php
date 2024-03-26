@@ -6,11 +6,13 @@ declare(strict_types = 1);
 
 namespace Station\Mutex;
 
+use Station\Infrastructure\Cache\Redis;
+
 final readonly class Mutex
 {
     public function __construct(
-        private \Redis $redis,
-        private string $owner,
+        private Redis $redis,
+        private string $owner = '',
     ) {
     }
 

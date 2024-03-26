@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Station\BaseClient\ClientBaseImp;
+use Station\BaseClient\ClientBaseRepository;
+use Station\Employ\EmployeeRepository;
 use Station\PilotStation\Station;
 use Station\Employ\Graph\ConstantGraphWork;
 use Station\Employ\TimeInterval\GraphIntervals;
@@ -25,20 +28,17 @@ use Station\Tool\ToolEnum;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/functions.php';
 
-$redis = new \Redis();
-$redis->connect('127.0.0.1');
+$redis = new \Station\Infrastructure\Cache\Redis();
 
 $ioFactory = new IOFactory();
 $io = $ioFactory->create();
 
 $stationRepository = new StationRepository($redis, new Mutex($redis));
 
-$time = new VirtualTime(microtime(true), new DateTimeImmutable(readline('Введи время планируемое для запуска: ')),60);
+$time = new VirtualTime(microtime(true), new DateTimeImmutable(readline('Введи время планируемое для запуска: ')),360);
 $logger = new LoggerWithTiming($time, new EchoLogger());
 
 $mutex1 = new Mutex($redis, 'RedisBasedClientQueue');
-$clientQueue = new RedisBasedClientQueue($redis, $mutex1);
-
 
 $timeStart = ['08:00', '08:15', '08:30', '08:45', '09:00', '09:15', '09:30', '09:45', '10:00'];
 $timeFinal = ['18:00', '18:15', '18:30', '18:45', '19:00', '19:15', '19:30', '19:45', '20:00', '20:15', '20:30', '20:45', '21:00'];
@@ -75,8 +75,12 @@ if ($isNeedCreate) {
     } else {
         $inventory = selectStation($io, $stationRepository)->getInventory();
     }
-    $station = new Station($name, $address, $graph, $inventory, $clientQueue, $time);
-    $redis->hSet('stations', $station->getId(), serialize($station));
+    $clientBaseRepository = new ClientBaseRepository($redis);
+    $clientQueue = new RedisBasedClientQueue($redis, $mutex1);
+    $clientBase = new ClientBaseImp($clientBaseRepository);
+    $employRepository = new EmployeeRepository($redis);
+    $station = new Station($name, $address, $graph, $inventory, $clientQueue, $time, $clientBase, $employRepository);
+    $stationRepository->save($station);
 } else {
     $station = selectStation($io, $stationRepository);
 }
@@ -89,6 +93,7 @@ while (true) {
         ToolEnum::airGun->value => new AirGun($time, $logger),
         ToolEnum::balancingMachine->value => new BalancingMachine($time, $logger)
     };
+
     $station->getInventory()->addNew($tool);
 }
 

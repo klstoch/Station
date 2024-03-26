@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Station\Client\Client;
+use Station\Employ\EmployeeRepository;
 use Station\PilotStation\Station;
 use Station\Employ\EmployInterface;
 use Station\Infrastructure\IO\IOInterface;
@@ -10,24 +10,17 @@ use Station\PilotStation\StationRepository;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-function selectEmploy(Station $station, IOInterface $io): ?EmployInterface
+function selectEmploy(EmployeeRepository $employeeRepository, IOInterface $io): ?EmployInterface
 {
     $namesForSelect = array_map(
         static fn (EmployInterface $employee) => sprintf('%s (%s)', $employee->getName(), $employee->getId()),
-        $station->getEmployees(),
+        $employeeRepository->getAll(),
     );
     $input = $io->requestInput('Выбери ФИО сотрудника', $namesForSelect);
-    if (preg_match("~\(.*\)~", $input, $matches) !== false) {
-        $id = trim($matches[0], '()');
-    } else {
-        throw new Exception('Неверный ввод');
-    }
-    foreach ($station->getEmployees() as $employee) {
-        if ($id === $employee->getId()) {
-            return $employee;
-        }
-    }
-    return null;
+    $id = findById($input);
+
+    return $employeeRepository->get($id);
+
 }
 
 function selectStation(IOInterface $io, StationRepository $stationRepository): Station
@@ -38,12 +31,17 @@ function selectStation(IOInterface $io, StationRepository $stationRepository): S
         $stations,
     );
     $input = $io->requestInput('Выбери имя станции', array_values($namesForSelect));
-    if (preg_match("~\(.*\)~", $input, $matches) !== false) {
-        $id = trim($matches[0], '()');
-    } else {
-        throw new Exception('Неверный ввод');
-    }
+    $id = findById($input);
 
     return $stationRepository->get($id);
 
+}
+
+function findById($input): ?string
+{
+    if (preg_match("~\(.*\)~", $input, $matches) !== false) {
+        return trim($matches[0], '()');
+    } else {
+        return throw new Exception('Неверный ввод');
+    }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Station\Tool;
 
-use Station\PilotStation\GeneratorID;
+use Station\Infrastructure\GeneratorID;
 use Station\Employ\EmployInterface;
 use Station\Logger\LoggerInterface;
 use Station\Time\VirtualTime;

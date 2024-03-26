@@ -15,8 +15,7 @@ use Station\Work\TyreReplacement;
 use Station\Work\WheelBalancing;
 use Station\Work\WheelReplacementBalancing;
 
-$redis = new \Redis();
-$redis->connect('127.0.0.1');
+$redis = new \Station\Infrastructure\Cache\Redis();
 
 $stationRepository = new StationRepository($redis, new Mutex($redis));
 
@@ -25,7 +24,7 @@ $io = $ioFactory->create();
 
 
 $station = selectStation($io, $stationRepository);
-$employee = selectEmploy($station, $io);
+$employee = selectEmploy($station->getEmployeeRepository(), $io);
 $time = $station->getTime();
 $logger = new LoggerWithTiming($time, new EchoLogger());
 

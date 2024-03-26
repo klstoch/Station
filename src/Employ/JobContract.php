@@ -7,20 +7,12 @@ use Station\Employ\Graph\GraphWork;
 class JobContract
 {
     public function __construct(
-        private readonly GraphWork $graphWork,
+        //private readonly GraphWork $graphWork,
         private float $salaryRate,
         private float $interestRate,
     )
     {
 
-    }
-
-    /**
-     * @return GraphWork
-     */
-    public function getGraphWork(): GraphWork
-    {
-        return $this->graphWork;
     }
 
     /**
@@ -42,7 +34,7 @@ class JobContract
     /**
      * @param float $interestRate
      */
-    public function setInterestRate(float $interestRate): void
+    public function updateInterestRate(float $interestRate): void
     {
         $this->interestRate = $interestRate;
     }
@@ -50,7 +42,7 @@ class JobContract
     /**
      * @param float $salaryRate
      */
-    public function setSalaryRate(float $salaryRate): void
+    public function updateSalaryRate(float $salaryRate): void
     {
         $this->salaryRate = $salaryRate;
     }

@@ -2,24 +2,29 @@
 
 namespace Station\PilotStation;
 
-use Station\Employ\EmployInterface;
+use Station\BaseClient\ClientBase;
+use Station\Employ\EmployeeRepository;
 use Station\Employ\Graph\GraphWork;
 use Station\Infrastructure\GeneratorID;
 use Station\Inventory\Inventory;
+use Station\Queue\ClientQueue;
+use Station\Time\VirtualTime;
 
 class Station
 {
-    private array $employees = [];
+    //private array $employees = [];
+    //private array $clients = [];
     private string $id;
 
     public function __construct(
-        private string    $name,
-        private string    $address,
-        private GraphWork $graphWork,
-        private Inventory $inventory,
-        //private WorkInterface   $work, вместе с сотрудником
-        //private EmployInterface $employ,
-        // клиенты могут являться потенциальным свойством (по моему - да)? какие еще свойтва станции?
+        private readonly string $name,
+        private readonly string $address,
+        private readonly GraphWork $graphWork,
+        private readonly Inventory $inventory,
+        private readonly ClientQueue $clientQueue,
+        private readonly VirtualTime $time,
+        private readonly ClientBase $clientBase,
+        private readonly EmployeeRepository $employeeRepository,
     )
     {
         $this->id = GeneratorID::genID();
@@ -66,16 +71,35 @@ class Station
     }
 
     /**
-     * @return array<EmployInterface>
+     * @return ClientQueue
      */
-    public function getEmployees(): array
+    public function getClientQueue(): ClientQueue
     {
-        return $this->employees;
+        return $this->clientQueue;
     }
 
-    public function addEmployee(EmployInterface $employee): void
+    /**
+     * @return VirtualTime
+     */
+    public function getTime(): VirtualTime
     {
-        $this->employees[] = $employee;
+        return $this->time;
+    }
+
+    /**
+     * @return ClientBase
+     */
+    public function getClientBase(): ClientBase
+    {
+        return $this->clientBase;
+    }
+
+    /**
+     * @return EmployeeRepository
+     */
+    public function getEmployeeRepository(): EmployeeRepository
+    {
+        return $this->employeeRepository;
     }
 
 

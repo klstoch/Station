@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Station\Inventory;
 
+use Station\Infrastructure\Cache\Redis;
 use Station\Infrastructure\GeneratorID;
 use Station\Employ\EmployInterface;
 use Station\Exception\ToolNotFoundException;
@@ -20,7 +21,7 @@ final readonly class RedisBasedInventory implements Inventory
 
     public function __construct(
         private LoggerInterface $logger,
-        private \Redis $redis,
+        private Redis $redis,
         private Mutex $mutex,
     )
     {
@@ -43,16 +44,19 @@ final readonly class RedisBasedInventory implements Inventory
      */
     public function get(EmployInterface $employ, ToolEnum $toolName): ToolInterface
     {
-        $this->mutex->unlock(self::PROCESS_INVENTORY);
-        $tools = $this->getTools();
-        foreach ($tools[$toolName->name] as $tool) {
-            if (!$tool->isBusy()) {
-                $tool->take($employ);
-                $this->saveTools($tools);
-                return $tool;
+        $this->mutex->waitAndLock(self::PROCESS_INVENTORY);
+        try {
+            $tools = $this->getTools();
+            foreach ($tools[$toolName->name] as $tool) {
+                if (!$tool->isBusy()) {
+                    $tool->take($employ);
+                    $this->saveTools($tools);
+                    return $tool;
+                }
             }
+        } finally {
+            $this->mutex->unlock(self::PROCESS_INVENTORY);
         }
-        $this->mutex->unlock(self::PROCESS_INVENTORY);
         throw new ToolNotFoundException();
     }
 
@@ -70,14 +74,13 @@ final readonly class RedisBasedInventory implements Inventory
 
     private function getTools(): array
     {
-        $serializedTools = $this->redis->get('inventory_' . $this->getUniqueKey());
+        $serializedTools = $this->executeWithExceptionHandling(fn()=>$this->redis->get('inventory_' . $this->getUniqueKey()));
         return $serializedTools ? unserialize($serializedTools, ['allowed_classes' => true]) : [];
     }
 
     private function saveTools(array $tools): void
     {
-        $serializedTools = serialize($tools);
-        $this->redis->set('inventory_' . $this->getUniqueKey(), $serializedTools);
+       $this->executeWithExceptionHandling(fn () => $this->redis->set('inventory_' . $this->getUniqueKey(), serialize($tools)));
     }
 
     /**
@@ -86,5 +89,13 @@ final readonly class RedisBasedInventory implements Inventory
     public function getUniqueKey(): string
     {
         return $this->uniqueKey;
+    }
+    private function executeWithExceptionHandling(callable $callable): mixed
+    {
+        try {
+            return $callable();
+        } catch (\RedisException $e) {
+            throw new \RuntimeException('Can`t execute redis operation', previous: $e);
+        }
     }
 }

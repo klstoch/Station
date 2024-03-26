@@ -4,7 +4,7 @@ namespace Station\Client;
 
 use Station\Infrastructure\GeneratorID;
 use Station\Vehicle\Car;
-use Station\Work\WorkEnumRequired;
+use Station\Work\AbstractWork;
 
 readonly class Client
 {
@@ -36,9 +36,9 @@ readonly class Client
         {
             return $this->car;
         }
-    public function createWorkName(): WorkEnumRequired
+    public function requestForTypeWork(): string
         {
-            $works = WorkEnumRequired::cases();
+            $works = AbstractWork::getAll();
             return $works[random_int(0, count($works) - 1)];
 
         }

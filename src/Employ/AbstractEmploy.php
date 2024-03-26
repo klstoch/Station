@@ -3,7 +3,7 @@
 namespace Station\Employ;
 
 
-use Station\PilotStation\GeneratorID;
+use Station\Infrastructure\GeneratorID;
 use Station\Employ\Graph\GraphWork;
 use Station\Exception\CanNotBeExecutedException;
 use Station\Exception\ToolNotFoundException;
@@ -12,8 +12,7 @@ use Station\Logger\LoggerInterface;
 use Station\Time\VirtualTime;
 use Station\Tool\ToolEnum;
 use Station\Tool\ToolInterface;
-use Station\Work\WorkEnumAdditional;
-use Station\Work\WorkEnumRequired;
+use Station\Work\CompetenceEnum;
 use Station\Work\WorkInterface;
 
 abstract class AbstractEmploy implements EmployInterface
@@ -21,12 +20,7 @@ abstract class AbstractEmploy implements EmployInterface
     /** @var array<ToolInterface> */
     private array $tools = [];
     private string $id;
-    private array $competences = [
-        WorkEnumRequired::tireReplacement,
-        WorkEnumRequired::wheelBalancing,
-        WorkEnumRequired::wheelReplacementBalancing,
-        WorkEnumRequired::wheelInflation,
-    ];
+    protected array $competences = [];
     private bool $isBusy = false;
 
     public function __construct(
@@ -36,12 +30,13 @@ abstract class AbstractEmploy implements EmployInterface
         private readonly Inventory $inventory,
         private readonly GraphWork $graphWork,
         private readonly VirtualTime $time,
-        /** @param array<WorkEnumRequired> $additionalCompetences */
-        private array $additionalCompetences = [],
+        private readonly JobContract $jobContract,
+        /** @param array<CompetenceEnum> $additionalCompetences */
+        array $additionalCompetences = [],
     )
     {
         if (!empty($additionalCompetences)) {
-           $this->competences = array_merge($this->competences, $additionalCompetences);
+            $this->competences = array_merge($this->competences, $additionalCompetences);
         }
         $this->id = GeneratorID::genID();
     }
@@ -91,7 +86,7 @@ abstract class AbstractEmploy implements EmployInterface
 
     public function canExecute(WorkInterface $work): bool
     {
-        if (!$this->isWorkTime($this->time->current()) === true) {
+        if (!$this->isWorkTime()) {
             $this->logger->log('Наш партнер сейчас не работает');
             return false;
         }
@@ -101,23 +96,25 @@ abstract class AbstractEmploy implements EmployInterface
             return false;
         }
 
-        if (!in_array($work::name(), $this->competences, true)) {
-            $this->logger->log('Не умею выполнять работу: ' . $work::name()->value);
-            return false;
+        foreach ($work->requiredCompetences() as $competence) {
+            if (!in_array($competence, $this->competences)) {
+                $this->logger->log('Не умею выполнять работу, такую как: ' . $work::name());
+                return false;
+            }
         }
 
         foreach ($work->requiredTools() as $requiredTool) {
-            $isToolReadyHas = false;
+            $isToolAlreadyHas = false;
             foreach ($this->tools as $tool) {
                 if ($tool->name() === $requiredTool) {
-                    $isToolReadyHas = true;
+                    $isToolAlreadyHas = true;
+                    break;
                 }
             }
             try {
-                if (!$isToolReadyHas) {
+                if (!$isToolAlreadyHas) {
                     $this->tools[] = $this->inventory->get($this, $requiredTool);
                 }
-
             } catch (ToolNotFoundException) {
                 $this->logger->log('Нет свободного ' . $requiredTool->value);
                 $this->returnAllTools();
@@ -139,8 +136,9 @@ abstract class AbstractEmploy implements EmployInterface
         throw new \RuntimeException('Не смогли получить инструмент, который у нас есть');
     }
 
-    public function isWorkTime(\DateTimeInterface $dateTime): bool
+    public function isWorkTime(?\DateTimeInterface $dateTime = null): bool
     {
+        $dateTime ??= $this->time->current();
         return $this->graphWork->isWorkTime($dateTime);
     }
 
@@ -153,19 +151,19 @@ abstract class AbstractEmploy implements EmployInterface
     }
 
     /**
-     * @return array
+     * @return array<CompetenceEnum>
      */
-    public function getAdditionalCompetences(): array
+    public function getCompetences(): array
     {
-        return $this->additionalCompetences;
+        return $this->competences;
     }
 
     /**
-     * @param WorkEnumAdditional $additionalCompetencesEnum
+     * @param CompetenceEnum $competenceEnum
      */
-    public function addAdditionalCompetences(WorkEnumAdditional $additionalCompetencesEnum ): void
+    public function addAdditionalCompetences(CompetenceEnum $competenceEnum): void
     {
-        $this->additionalCompetences[] = $additionalCompetencesEnum;
+        $this->competences[] = $competenceEnum;
     }
 
     /**
@@ -174,5 +172,26 @@ abstract class AbstractEmploy implements EmployInterface
     public function getGraphWork(): GraphWork
     {
         return $this->graphWork;
+    }
+
+    public function doBreak(): void
+    {
+        $actions = [
+            'Вышел на перекур',
+            'Пошел за чайком',
+            'Точит лясы',
+            'Убирает рабочее место',
+        ];
+        $this->logger->log($actions[random_int(0, count($actions) - 1)]);
+        $this->time->wait(minute: random_int(1, 10));
+        $this->logger->log('вернулся');
+    }
+
+    /**
+     * @return JobContract
+     */
+    public function getJobContract(): JobContract
+    {
+        return $this->jobContract;
     }
 }

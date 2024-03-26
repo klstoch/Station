@@ -14,4 +14,7 @@ interface ClientQueue
     public function delete(Client $client):void;
 
     public function isEmptyClientQueue():bool;
+
+    public function count(): int;
+
 }
