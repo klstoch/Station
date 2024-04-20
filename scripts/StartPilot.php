@@ -10,26 +10,28 @@ use Station\Infrastructure\IO\IOFactory;
 use Station\Logger\EchoLogger;
 use Station\Logger\LoggerWithTiming;
 use Station\Mutex\Mutex;
-use Station\PilotStation\StationRepository;
+use Station\PilotStation\RedisBasedStationRepository;
+use Station\Queue\RedisBasedClientQueueFactory;
 use Station\Work\TyreReplacement;
 use Station\Work\WheelBalancing;
 use Station\Work\WheelReplacementBalancing;
 
 $redis = new \Station\Infrastructure\Cache\Redis();
 
-$stationRepository = new StationRepository($redis, new Mutex($redis));
+$stationRepository = new RedisBasedStationRepository($redis, new Mutex($redis));
 
 $ioFactory = new IOFactory();
 $io = $ioFactory->create();
 
 
 $station = selectStation($io, $stationRepository);
-$employee = selectEmploy($station->getEmployeeRepository(), $io);
+$employee = selectEmploy($station, $io);
 $time = $station->getTime();
 $logger = new LoggerWithTiming($time, new EchoLogger());
+$queueFactory = new RedisBasedClientQueueFactory($redis);
 
 while (true) {
-    $client = $station->getClientQueue()->get();
+    $client = $station->getClientQueue($queueFactory)->get();
     if ($client === null) {
         $time->wait(minute: 1);
         continue;

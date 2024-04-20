@@ -26,4 +26,13 @@ readonly class VirtualTime
         $realMicroSeconds = (int)($realSeconds * 1000000);
         usleep($realMicroSeconds);
     }
+
+    public function toArray():array
+    {
+        return[
+            'startRealTime'=> $this->startRealTime,
+            'startVirtualTime'=> $this->startVirtualTime->format('Y-m-d'),
+            'scale'=> $this->scale
+        ];
+    }
 }

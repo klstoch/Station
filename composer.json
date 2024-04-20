@@ -17,6 +17,10 @@
     "v.chetkov/data-structures": "@dev",
     "symfony/console": "^7.0",
     "ext-redis": "*",
-    "ramsey/uuid": "^4.7"
+    "ramsey/uuid": "^4.7",
+    "ext-pdo": "*",
+    "doctrine/orm": "^3",
+    "doctrine/dbal": "^4",
+    "symfony/cache": "^7"
   }
 }

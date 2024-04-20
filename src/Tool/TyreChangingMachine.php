@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 namespace Station\Tool;
+use Doctrine\ORM\Mapping\Entity;
 
-final class TireChangingMachine extends AbstractTool
+#[Entity]
+final class TyreChangingMachine extends AbstractTool
 {
     public static function name(): ToolEnum
     {

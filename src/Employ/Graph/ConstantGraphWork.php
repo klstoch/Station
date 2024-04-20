@@ -8,6 +8,7 @@ use Station\Employ\TimeInterval\TimeInterval;
 
 class ConstantGraphWork implements GraphWork
 {
+    public const TYPE = 'constant';
     public function __construct(
         /** @var null|array<GraphIntervals> $dayWeek */
         private ?array $dayWeek = null
@@ -30,6 +31,27 @@ class ConstantGraphWork implements GraphWork
         $time = Time::from($dateTime->format('H:i'));
 
         return $graphIntervals->isWorkingTime($time);
+    }
 
+    public function toArray(): array
+    {
+        $translateTimeInterval = static fn (TimeInterval $timeInterval) => [
+            'start' => $timeInterval->startTime()->value,
+            'end' => $timeInterval->endTime()->value,
+        ];
+
+        $daysOfWeek = [];
+        foreach ($this->dayWeek as $index => $dayOfWeek) {
+            $daysOfWeek[$index] = [
+                'work_time' => $translateTimeInterval($dayOfWeek->workingTimeInterval),
+                'launch_time' => $dayOfWeek->launchTimeInterval !== null
+                    ? $translateTimeInterval($dayOfWeek->launchTimeInterval)
+                    : null,
+            ];
+        }
+        return [
+            'type'=> self::TYPE,
+            'daysOfWeek' => $daysOfWeek,
+        ];
     }
 }

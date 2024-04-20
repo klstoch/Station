@@ -8,9 +8,7 @@ readonly class  ClientBaseImp implements ClientBase
 {
     public function __construct(
         private ClientBaseRepository $clientBaseRepository,
-    )
-    {
-
+    ) {
     }
 
     public function add(Client $client): void

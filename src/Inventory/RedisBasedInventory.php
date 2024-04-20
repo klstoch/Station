@@ -72,6 +72,9 @@ final readonly class RedisBasedInventory implements Inventory
         $this->mutex->unlock(self::PROCESS_INVENTORY);
     }
 
+    /**
+     * @return array<string, ToolInterface>
+     */
     private function getTools(): array
     {
         $serializedTools = $this->executeWithExceptionHandling(fn()=>$this->redis->get('inventory_' . $this->getUniqueKey()));

@@ -9,6 +9,7 @@ use Station\Employ\TimeInterval\TimeInterval;
 
 class SlidingGraphWork implements GraphWork
 {
+    public const TYPE = 'sliding';
     private array $daysWork = [];
 
     public function __construct(
@@ -56,6 +57,26 @@ class SlidingGraphWork implements GraphWork
         return $this->workingTime->isWorkingTime($time);
 
     }
+
+    public function toArray(): array
+    {
+        $translateTimeInterval = static fn(TimeInterval $timeInterval) => [
+            'start' => $timeInterval->startTime()->value,
+            'end' => $timeInterval->endTime()->value,
+        ];
+        return [
+            'firstWorkDay' => $this->firstWorkDay->format('Y-m-d'),
+            'holidays' => $this->holidays,
+            'workingDays' => $this->workingDays,
+            'workingTime' => $translateTimeInterval($this->workingTime->workingTimeInterval),
+            'launchTime' => $this->workingTime->launchTimeInterval !== null
+                ? $translateTimeInterval($this->workingTime->launchTimeInterval)
+                : null,
+            'type'=>self::TYPE,
+        ];
+
+    }
+
 
 }
 

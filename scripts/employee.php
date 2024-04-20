@@ -18,12 +18,12 @@ use Station\Infrastructure\IO\IOFactory;
 use Station\Logger\EchoLogger;
 use Station\Logger\LoggerWithTiming;
 use Station\Mutex\Mutex;
-use Station\PilotStation\StationRepository;
+use Station\PilotStation\RedisBasedStationRepository;
 use Station\Work\CompetenceEnum;
 
 $redis = new \Station\Infrastructure\Cache\Redis();
 
-$stationRepository = new StationRepository($redis, new Mutex($redis));
+$stationRepository = new RedisBasedStationRepository($redis, new Mutex($redis));
 
 $ioFactory = new IOFactory();
 $io = $ioFactory->create();
@@ -94,7 +94,7 @@ if ($isNeedCreate) {
     $station->getEmployeeRepository()->saveEmployee($employee);//addEmployee($employee);
     //$stationRepository->saveEmployees($station);
 } else {
-    $employee = selectEmploy($station->getEmployeeRepository(), $io);
+    $employee = selectEmploy($station, $io);
 }
 
 $answerByEmployee = ['Желаете изменить зарплату?', 'Желаете добавить умения сотруднику?'];

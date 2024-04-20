@@ -59,7 +59,7 @@ readonly class RedisBasedClientQueue implements ClientQueue
         return count($this->getClientQueue());
     }
 
-    private function getClientQueue(): array //$this->redis->get('queue_' . $this->getUniqueKey());
+    private function getClientQueue(): array
     {
         $serializedClientQueue = $this->executeWithExceptionHandling(fn () => $this->redis->get('queue_' . $this->getUniqueKey()));
         return $serializedClientQueue ? unserialize($serializedClientQueue, ['allowed_classes' => true]) : [];

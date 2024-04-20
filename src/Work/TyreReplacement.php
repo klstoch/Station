@@ -7,7 +7,7 @@ namespace Station\Work;
 use Chetkov\Money\Money;
 use Station\Employ\EmployInterface;
 use Station\Tool\AirGun;
-use Station\Tool\TireChangingMachine;
+use Station\Tool\TyreChangingMachine;
 use Station\Tool\ToolEnum;
 
 
@@ -32,7 +32,7 @@ final class TyreReplacement extends AbstractWork
         assert($airGun instanceof AirGun);
 
         $tireChangingMachine = $employ->selectTool(ToolEnum::tireChangingMachine);
-        assert($tireChangingMachine instanceof TireChangingMachine);
+        assert($tireChangingMachine instanceof TyreChangingMachine);
 
         $airGun->spinLeft();
         $airGun->spinLeft();

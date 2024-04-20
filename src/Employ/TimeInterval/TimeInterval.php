@@ -14,4 +14,14 @@ readonly class TimeInterval
     {
         return $this->start->value <= $time->value && $this->end->value > $time->value;
     }
+
+    public function startTime(): Time
+    {
+        return $this->start;
+    }
+
+    public function endTime(): Time
+    {
+        return $this->end;
+    }
 }

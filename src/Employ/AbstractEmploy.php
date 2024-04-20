@@ -3,34 +3,50 @@
 namespace Station\Employ;
 
 
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\Table;
 use Station\Infrastructure\GeneratorID;
 use Station\Employ\Graph\GraphWork;
 use Station\Exception\CanNotBeExecutedException;
 use Station\Exception\ToolNotFoundException;
 use Station\Inventory\Inventory;
 use Station\Logger\LoggerInterface;
+use Station\PilotStation\Station;
 use Station\Time\VirtualTime;
 use Station\Tool\ToolEnum;
 use Station\Tool\ToolInterface;
 use Station\Work\CompetenceEnum;
 use Station\Work\WorkInterface;
-
+#[Entity]
+#[Table(name: 'employees')]
 abstract class AbstractEmploy implements EmployInterface
 {
     /** @var array<ToolInterface> */
     private array $tools = [];
+    #[Id]
+    #[GeneratedValue(strategy: 'SEQUENCES')]
+    #[Column(name: 'id', type: 'integer', nullable: false)]
     private string $id;
     protected array $competences = [];
     private bool $isBusy = false;
 
     public function __construct(
+        #[Column(name:'employee_name', length: 150, nullable:false)]
         private readonly string $name,
+        #[Column(name:'grade', type: 'grade',length: 50, nullable:false)]
         private readonly Grade $grade,
         protected LoggerInterface $logger,
         private readonly Inventory $inventory,
+        #[Column(name: 'graph_work', type: 'graph_work', nullable: false)]
         private readonly GraphWork $graphWork,
         private readonly VirtualTime $time,
         private readonly JobContract $jobContract,
+        #[ManyToOne(targetEntity: Station::class, inversedBy: 'employees')]
+        private readonly Station $station,
         /** @param array<CompetenceEnum> $additionalCompetences */
         array $additionalCompetences = [],
     )
@@ -193,5 +209,13 @@ abstract class AbstractEmploy implements EmployInterface
     public function getJobContract(): JobContract
     {
         return $this->jobContract;
+    }
+
+    /**
+     * @return Station
+     */
+    public function getStation(): Station
+    {
+        return $this->station;
     }
 }

@@ -8,7 +8,7 @@ use Station\Infrastructure\IO\IOFactory;
 use Station\Logger\EchoLogger;
 use Station\Logger\LoggerWithTiming;
 use Station\Mutex\Mutex;
-use Station\PilotStation\StationRepository;
+use Station\PilotStation\RedisBasedStationRepository;
 /*use Station\Work\TyreReplacement;
 use Station\Work\WheelBalancing;
 use Station\Work\WheelReplacementBalancing;*/
@@ -17,7 +17,7 @@ use Station\Work\WheelReplacementBalancing;*/
 require_once __DIR__.'/functions.php';
 $redis = new \Station\Infrastructure\Cache\Redis();
 
-$stationRepository = new StationRepository($redis, new Mutex($redis));
+$stationRepository = new RedisBasedStationRepository($redis, new Mutex($redis));
 $clientBaseRepository = new ClientBaseRepository($redis);
 $ioFactory = new IOFactory();
 $io = $ioFactory->create();
