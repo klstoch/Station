@@ -4,10 +4,9 @@ namespace Station\Infrastructure\Doctrine\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Station\Employ\Grade;
+use Station\Domain\Station\Employ\Grade;
 
-
-class GradeType extends Type
+final class GradeType extends Type
 {
     public const NAME = 'grade';
 
@@ -26,6 +25,7 @@ class GradeType extends Type
         if ($value === null){
             return null;
         }
+
         return Grade::from($value);
     }
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
@@ -35,8 +35,9 @@ class GradeType extends Type
         }
 
        if(!$value instanceof Grade){
-           throw new \RuntimeException();
+           throw new \RuntimeException('$value must be of type Grade');
        }
+
        return $value->value;
     }
 }

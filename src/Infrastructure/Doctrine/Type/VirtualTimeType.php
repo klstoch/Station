@@ -4,9 +4,9 @@ namespace Station\Infrastructure\Doctrine\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Station\Time\VirtualTime;
+use Station\Domain\Time\VirtualTime;
 
-class VirtualTimeType extends Type
+final class VirtualTimeType extends Type
 {
     const NAME = 'virtual_time';
 
@@ -34,6 +34,10 @@ class VirtualTimeType extends Type
             scale: $virtualTimeData['scale']
         );
     }
+
+    /**
+     * @throws \JsonException
+     */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): false|string|null
     {
         if ($value === null) {
@@ -41,9 +45,9 @@ class VirtualTimeType extends Type
         }
 
         if (!$value instanceof VirtualTime) {
-            throw new \RuntimeException();
+            throw new \RuntimeException('$value must be of type VirtualTime');
         }
-        return json_encode($value->toArray());
+        return json_encode($value->toArray(), JSON_THROW_ON_ERROR);
     }
 
 }

@@ -2,8 +2,8 @@
 
 return [
     'driver' => 'pdo_pgsql',
-    'user' => 'kirill1',
-    'password' => '111111',
-    'dbname' => 'testdb1',
-    'host' => '127.0.0.1',
+    'user' => 'station_simulator',
+    'password' => 'station_simulator',
+    'dbname' => 'station_simulator',
+    'host' => 'db.station-simulator.local',
 ];

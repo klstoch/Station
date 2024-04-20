@@ -4,18 +4,18 @@ namespace Station\Infrastructure\Doctrine\Type;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Station\Vehicle\BodyEnum;
-use Station\Vehicle\Car;
-use Station\Vehicle\DamageEnum;
-use Station\Vehicle\DiscMaterialEnum;
-use Station\Vehicle\DiscWheel;
-use Station\Vehicle\RadiusEnum;
-use Station\Vehicle\Tyre;
-use Station\Vehicle\Wheel;
+use Station\Domain\Client\Vehicle\BodyEnum;
+use Station\Domain\Client\Vehicle\Car;
+use Station\Domain\Client\Vehicle\DamageEnum;
+use Station\Domain\Client\Vehicle\DiscMaterialEnum;
+use Station\Domain\Client\Vehicle\DiscWheel;
+use Station\Domain\Client\Vehicle\RadiusEnum;
+use Station\Domain\Client\Vehicle\Tyre;
+use Station\Domain\Client\Vehicle\Wheel;
 
-class CarType extends Type
+final class CarType extends Type
 {
-    const NAME = 'car';
+    public const NAME = 'car';
 
     public function getName(): string
     {
@@ -31,7 +31,7 @@ class CarType extends Type
      */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): Car
     {
-        $carData = json_decode($value, true, flags: JSON_THROW_ON_ERROR);
+        $carData = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
         return new Car(
             wheel: new Wheel(
                 discWheel: new DiscWheel(
@@ -47,14 +47,19 @@ class CarType extends Type
             body: BodyEnum::from($carData['body_enum']));
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): false|string|null
     {
         if ($value === null) {
             return null;
         }
-        if ($value instanceof Car) {
-            throw new \RuntimeException();
+
+        if (!$value instanceof Car) {
+            throw new \RuntimeException('$value must be of type Car');
         }
-        return json_encode($value->toArray());
+
+        return json_encode($value->toArray(), JSON_THROW_ON_ERROR);
     }
 }

@@ -7,7 +7,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
-use Station\Exception\InfrastructureException;
+use Station\Infrastructure\Exception\InfrastructureException;
 
 class EntityManagerFactory
 {
